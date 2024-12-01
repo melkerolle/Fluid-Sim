@@ -116,27 +116,44 @@ float NearPressureFromDensity(float nearDensity)
 float2 ExternalForces(float2 pos, float2 velocity)
 {
 	// Gravity
+	
+    float rotVel = 1;
+    float rotAcc = 100;
 	float2 gravityAccel = float2(0, gravity);
+    float2 rotationalAccel = float2(pos.y, -pos.x) * rotAcc;
+    if (sqrt(pos.x * pos.x + pos.y * pos.y)  < 6.5)
+    {
+        rotationalAccel = float2(0, 0);
+    }
+    if (sqrt(pos.x * pos.x + pos.y * pos.y) > 7)
+    {
+        rotationalAccel = float2(0, 0);
+    }
+    if (sqrt(velocity.x * velocity.x * abs(pos.y) + velocity.y * velocity.y * abs(pos.x)) / sqrt(pos.x * pos.x + pos.y * pos.y) > rotVel)
+    {
+        rotationalAccel = float2(0, 0);
+    }
 	
 	// Input interactions modify gravity
-	if (interactionInputStrength != 0) {
-		float2 inputPointOffset = interactionInputPoint - pos;
-		float sqrDst = dot(inputPointOffset, inputPointOffset);
-		if (sqrDst < interactionInputRadius * interactionInputRadius)
-		{
-			float dst = sqrt(sqrDst);
-			float edgeT = (dst / interactionInputRadius);
-			float centreT = 1 - edgeT;
-			float2 dirToCentre = inputPointOffset / dst;
+        if (interactionInputStrength != 0)
+        {
+            float2 inputPointOffset = interactionInputPoint - pos;
+            float sqrDst = dot(inputPointOffset, inputPointOffset);
+            if (sqrDst < interactionInputRadius * interactionInputRadius)
+            {
+                float dst = sqrt(sqrDst);
+                float edgeT = (dst / interactionInputRadius);
+                float centreT = 1 - edgeT;
+                float2 dirToCentre = inputPointOffset / dst;
 
-			float gravityWeight = 1 - (centreT * saturate(interactionInputStrength / 10));
-			float2 accel = gravityAccel * gravityWeight + dirToCentre * centreT * interactionInputStrength;
-			accel -= velocity * centreT;
-			return accel;
-		}
-	}
+                float gravityWeight = 1 - (centreT * saturate(interactionInputStrength / 10));
+                float2 accel = gravityAccel * gravityWeight + dirToCentre * centreT * interactionInputStrength;
+                accel -= velocity * centreT;
+                return accel;
+            }
+        }
 
-	return gravityAccel;
+    return gravityAccel + rotationalAccel;
 }
 
 
