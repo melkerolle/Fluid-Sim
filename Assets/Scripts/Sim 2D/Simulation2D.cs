@@ -3,6 +3,7 @@ using Unity.Mathematics;
 
 public class Simulation2D : MonoBehaviour
 {
+    public int simulationSteps = 0;
     public event System.Action SimulationStepCompleted;
 
     [Header("Simulation Settings")]
@@ -137,6 +138,7 @@ public class Simulation2D : MonoBehaviour
 
     void RunSimulationStep()
     {
+        simulationSteps += 1;
         ComputeHelper.Dispatch(compute, numParticles, kernelIndex: externalForcesKernel);
         ComputeHelper.Dispatch(compute, numParticles, kernelIndex: spatialHashKernel);
         gpuSort.SortAndCalculateOffsets();
@@ -196,6 +198,7 @@ public class Simulation2D : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Space))
         {
+            Debug.Log(Time.frameCount.ToString());
             isPaused = !isPaused;
         }
         if (Input.GetKeyDown(KeyCode.RightArrow))

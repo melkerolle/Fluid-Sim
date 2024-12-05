@@ -1,6 +1,7 @@
 using UnityEngine;
 using Unity.Mathematics;
 using System.Security.Cryptography;
+using System;
 
 public class ParticleSpawner : MonoBehaviour
 {
@@ -15,8 +16,7 @@ public class ParticleSpawner : MonoBehaviour
     public ParticleSpawnData GetSpawnData()
     {
         ParticleSpawnData data = new ParticleSpawnData(particleCount);
-        var rng = new Unity.Mathematics.Random(42);
-
+        var rng = new Unity.Mathematics.Random(Convert.ToUInt32(UnityEngine.Random.Range(0, 10000)));
         float2 s = spawnSize;
         int numX = Mathf.CeilToInt(Mathf.Sqrt(s.x / s.y * particleCount + (s.x - s.y) * (s.x - s.y) / (4 * s.y * s.y)) - (s.x - s.y) / (2 * s.y));
         int numY = Mathf.CeilToInt(particleCount / (float)numX);
